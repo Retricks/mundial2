@@ -1,28 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <title>Mecze Mistrzostw Świata</title>
+    <title>Mistrzostwa Świata</title>
   </head>
   <body>
-    <h1>Mecze Mistrzostw Świata</h1>
-
-    <h2>Mecze:</h2>
-    <ul id="matches"></ul>
-
-    <h2>Statystyki:</h2>
-    <table id="stats">
-      <tr>
-        <th>Drużyna</th>
-        <th>RM</th>
-        <th>W</th>
-        <th>R</th>
-        <th>P</th>
-        <th>Pkt</th>
-      </tr>
-    </table>
-
+    <h1>Mecze</h1>
+    <div id="matches"></div>
     <button id="addMatchButton">Dodaj mecz</button>
+    <h1>Statystyki</h1>
+    <table id="stats"></table>
 
     <script>
       // Tablica z meczami
@@ -36,24 +22,14 @@
         // Wypełnienie listy meczów
         for (const match of matches) {
           const { team1, team2, score1, score2 } = match;
-
-          // Stworzenie elementu z meczem
-          const matchElement = document.createElement("li");
+          const matchElement = document.createElement("div");
           if (score1 === undefined) {
-            // Jeśli wynik meczu jest nieznany, wyświetl przycisk "Dodaj wynik"
+            // Jeśli wynik meczu jest nieznany, dodaj przycisk do dodania wyniku
             const addScoreButton = document.createElement("button");
-            addScoreButton.style.display = "block";
-            addScoreButton.innerHTML = "Dodaj wynik";
-            addScoreButton.onclick = () => {
-              // Funkcja do dodawania wyniku meczu
-              function addScore(match) {
-                const score1 = parseInt(
-                  prompt(`Wynik drużyny ${team1}:`, "0")
-                );
-                const score2 = parseInt(
-                  prompt(`Wynik drużyny ${team2}:`, "0")
-                );
-
+            addScoreButton.textContent = "Dodaj wynik";
+            addScoreButton.onclick = function() {
+              const score1 = prompt("Wynik drużyny 1:");
+              const score2 = prompt("Wynik drużyny 2:");
               // Sprawdzenie, czy podano poprawne dane
               if (!isNaN(score1) && !isNaN(score2)) {
                 // Dodanie wyniku do meczu
@@ -63,15 +39,16 @@
                 // Odświeżenie listy meczów i statystyk
                 refreshMatchesAndStats();
               }
-            }
-            addScore(match);
+            };
+            matchElement.appendChild(addScoreButton);
+          } else {
+            // Jeśli wynik meczu jest znany, wyświetl go
+            matchElement.innerHTML = `${team1} ${score1} - ${score2} ${team2}`;
           }
-          matchElement.appendChild(addScoreButton);
-        } else {
-          // Jeśli wynik meczu jest znany, wyświetl go
-          matchElement.innerHTML = `${team1} ${score1} - ${score2} ${team2}`;
+          document.getElementById("matches").appendChild(matchElement);
         }
-        document.getElementById("matches").appendChild(matchElement);
+        // Odświeżenie statystyk
+        refreshStats();
       }
 
       // Funkcja do odświeżania statystyk drużyn
@@ -85,75 +62,75 @@
             <th>R</th>
             <th>P</th>
             <th>Pkt</th>
-          </tr>
-        `;
-
-        // Tablica z statystykami drużyn
-        const stats = {};
-
-        // Wypełnienie tabeli statystyk
-        for (const match of matches) {
-          const { team1, team2, score1, score2 } = match;
-          if (!stats[team1]) {
-            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
-          }
-          if (!stats[team2]) {
-            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
-          }
-          // Jeśli wynik meczu jest znany, dodaj do statystyk
-          if (score1 !== undefined) {
-            stats[team1].played += 1;
-            stats[team2].played += 1;
-            if (score1 > score2) {
-              stats[team1].won += 1;
-              stats[team2].lost += 1;
-              stats[team1].points += 3;
-            } else if (score1 < score2) {
-              stats[team1].lost += 1;
-              stats[team2].won += 1;
-              stats[team2].points += 3;
-            } else {
-              stats[team1].drawn += 1;
-              stats[team2].drawn += 1;
-              stats[team1].points += 1;
-              stats[team2].points += 1;
+</tr>
+  `;
+          // Obiekt zawierający statystyki drużyn
+          const stats = {};
+          for (const match of matches) {
+            const { team1, team2, score1, score2 } = match;
+            // Jeśli drużyna jeszcze nie istnieje w statystykach, dodaj ją
+            if (!stats[team1]) {
+              stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+            }
+            if (!stats[team2]) {
+              stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+            }
+            // Jeśli wynik meczu jest znany, zaktualizuj statystyki drużyn
+            if (score1 !== undefined) {
+              stats[team1].played += 1;
+              stats[team2].played += 1;
+              if (score1 > score2) {
+                stats[team1].won += 1;
+                stats[team2].lost += 1;
+                stats[team1].points += 3;
+              } else if (score1 < score2) {
+                stats[team1].lost += 1;
+                stats[team2].won += 1;
+                stats[team2].points += 3;
+              } else {
+                stats[team1].drawn += 1;
+                stats[team2].drawn += 1;
+                stats[team1].points += 1;
+                stats[team2].points += 1;
+              }
             }
           }
+          // Wypełnienie tabeli statystyk danymi
+          for (const stat of Object.values(stats)) {
+            const { team, played, won, drawn, lost, points } = stat;
+            const statRow = document.createElement("tr");
+            statRow.innerHTML = `
+              <td>${team}</td>
+              <td>${played}</td>
+              <td>${won}</td>
+              <td>${drawn}</td>
+              <td>${lost}</td>
+              <td>${points}</td>
+            `;
+            document.getElementById("stats").appendChild(statRow);
+          }
         }
-        // Wypełnienie tabeli statystyk danymi
-        for (const stat of Object.values(stats)) {
-          const { team, played, won, drawn, lost, points } = stat;
-          const statRow = document.createElement("tr");
-          statRow.innerHTML = `
-            <td>${team}</td>
-            <td>${played}</td>
-            <td>${won}</td>
-            <td>${drawn}</td>
-            <td>${lost}</td>
-            <td>${points}</td>
-          `;
-          document.getElementById("stats").appendChild(statRow);
+
+        // Funkcja do dodawania meczu
+        function addMatch() {
+          const team1 = prompt("Nazwa drużyny 1:", "");
+          const team2 = prompt(" Nazwa drużyny 2:", "");
+
+          // Sprawdzenie, czy podano nazwy drużyn
+          if (team1 && team2          ) {
+            // Dodanie nowego meczu do listy
+            matches.push({ team1, team2 });
+            // Odświeżenie listy meczów i statystyk
+            refreshMatchesAndStats();
+          }
         }
-      }
 
-      // Funkcja do dodawania meczu
-      function addMatch() {
-        const team1 = prompt("Nazwa drużyny 1:", "");
-        const team2 = prompt("Nazwa drużyny 2:", "");
+        // Aktualizacja listy meczów i statystyk po załadowaniu strony
+        refreshMatchesAndStats();
 
-        // Sprawdzenie, czy podano nazwy drużyn
-        if (team1 && team2) {
-          // Dodanie meczu do tablicy meczów
-          matches.push({ team1, team2 });
-
-          // Odświeżenie listy meczów i statystyk
-          refreshMatchesAndStats();
-          refreshStats();
-        }
-      }
-
-      // Dodanie obsługi zdarzenia kliknięcia na przycisk "Dodaj mecz"
-      document.getElementById("addMatchButton").onclick = addMatch;
+        // Dodanie obsługi kliknięcia na przycisk "Dodaj mecz"
+        document.getElementById("addMatchButton").onclick = addMatch;
     </script>
   </body>
 </html>
+
