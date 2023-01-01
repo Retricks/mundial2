@@ -25,7 +25,7 @@
       // Funkcja do odświeżenia listy meczów i statystyk
       function refreshMatchesAndStats() {
         // Pobranie meczów z pamięci przeglądarki
-        const matches = JSON.parse(localStorage.getItem("matches")) || [];
+        const matches = [];
 
         // Wyczyszczenie listy meczów
         document.getElementById("matches").innerHTML = "";
