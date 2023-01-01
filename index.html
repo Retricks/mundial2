@@ -72,3 +72,79 @@
         // Jeśli mecz zakończył się remisem:
         if (homeGoals === awayGoals) {
           // Zwiększ liczbę remis
+        teamResults[homeTeam].draws++;
+        teamResults[awayTeam].draws++;
+        teamResults[homeTeam].points++;
+        teamResults[awayTeam].points++;
+      } else {
+        // W przeciwnym razie zwiększ liczbę zwycięstw lub porażek w zależności od wyniku
+        let winner = homeGoals > awayGoals ? homeTeam : awayTeam;
+        let loser = winner === homeTeam ? awayTeam : homeTeam;
+        teamResults[winner].wins++;
+        teamResults[loser].losses++;
+        teamResults[winner].points += 3;
+      }
+    }
+
+    // Posortuj słownik według punktów
+    let sortedTeams = Object.values(teamResults).sort((a, b) => b.points - a.points);
+
+    // Dla każdej drużyny:
+    for (let i = 0; i < sortedTeams.length; i++) {
+      let teamResult = sortedTeams[i];
+
+      // Dodaj wiersz do tabeli
+      let row = table.insertRow(-1);
+      row.insertCell(-1).innerHTML = teamResult.group;
+      row.insertCell(-1).innerHTML = teamResult.team;
+      row.insertCell(-1).innerHTML = teamResult.matches;
+      row.insertCell(-1).innerHTML = teamResult.wins;
+      row.insertCell(-1).innerHTML = teamResult.losses;
+      row.insertCell(-1).innerHTML = teamResult.draws;
+      row.insertCell(-1).innerHTML = teamResult.points;
+    }
+  }
+
+  // Funkcja dodająca nowy mecz do listy meczów
+  function addMatch(homeTeam, awayTeam, homeGoals, awayGoals) {
+    matches.push({
+      homeTeam: homeTeam,
+      awayTeam: awayTeam,
+      homeGoals: homeGoals,
+      awayGoals: awayGoals
+    });
+    updateResultsTable();
+  }
+
+  // Funkcja resetująca wyniki meczów
+  function resetMatches() {
+    matches = [];
+    updateResultsTable();
+  }
+
+  // Funkcja zapisująca listę meczów do localStorage
+  function saveMatches() {
+    localStorage.setItem('matches', JSON.stringify(matches));
+  }
+
+  // Aktualizuj tabelę po załadowaniu strony
+  updateResultsTable();
+
+  // Dodaj obsługę kliknięcia przycisku resetującego wyniki
+  let resetButton = document.getElementById('reset-button');
+  resetButton.addEventListener('click', function() {
+    resetMatches();
+    saveMatches();
+  });
+
+  // Dodaj kilka przykładowych meczów
+  addMatch
+('Polska', 'Niemcy', 2, 1);
+  addMatch('Brazylia', 'Argentyna', 0, 0);
+  addMatch('Hiszpania', 'Francja', 1, 2);
+
+  // Zapisz listę meczów do localStorage
+  saveMatches();
+</script>
+</body>
+</html>
