@@ -129,8 +129,9 @@
 
       // Funkcja do dodawania nowych meczów do listy
       function addMatch() {
-        const team1 = prompt("Nazwa drużyny 1:");
-        const team2 = prompt("Nazwa drużyny 2:");
+        const team1 = prompt("Nazwa drużyny 1:", "");
+        const team2 = prompt("Nazwa drużyny 2:", "");
+
 
         // Sprawdzenie, czy podano poprawne dane
         if (team1 && team2) {
