@@ -1,15 +1,16 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Mistrzostwa Świata</title>
+    <meta charset="utf-8" />
+    <title>Mecze Mistrzostw Świata</title>
   </head>
   <body>
-    <h1>Mistrzostwa Świata</h1>
-    <h2>Mecze</h2>
-    <ul id="matches">
-      <!-- Tutaj zostaną wyświetlone mecze -->
-    </ul>
-    <button id="addMatchButton">Dodaj mecz</button>
-    <h2>Statystyki drużyn</h2>
+    <h1>Mecze Mistrzostw Świata</h1>
+
+    <h2>Mecze:</h2>
+    <ul id="matches"></ul>
+
+    <h2>Statystyki:</h2>
     <table id="stats">
       <tr>
         <th>Drużyna</th>
@@ -19,66 +20,78 @@
         <th>P</th>
         <th>Pkt</th>
       </tr>
-      <!-- Tutaj zostaną wyświetlone statystyki -->
     </table>
-    <script>
-      // Funkcja do odświeżenia listy meczów i statystyk
-      function refreshMatchesAndStats() {
-        // Pobranie meczów z pamięci przeglądarki
-        const matches = JSON.parse(localStorage.getItem("matches")) || [];
 
+    <button id="addMatchButton">Dodaj mecz</button>
+
+    <script>
+      // Tablica z meczami
+      const matches = [];
+
+      // Funkcja do odświeżania listy meczów i statystyk
+      function refreshMatchesAndStats() {
         // Wyczyszczenie listy meczów
         document.getElementById("matches").innerHTML = "";
 
-        // Dodanie meczów do listy
+        // Wypełnienie listy meczów
         for (const match of matches) {
-          const { team1, team2 } = match;
-          const matchElement = document.createElement("li");
+          const { team1, team2, score1, score2 } = match;
 
-          // Jeśli wynik meczu jest nieznany, dodaj przycisk "Dodaj wynik"
-          if (match.score1 === undefined) {
-            matchElement.innerHTML = `${team1} vs ${team2}`;
+          // Stworzenie elementu z meczem
+          const matchElement = document.createElement("li");
+          if (score1 === undefined) {
+            // Jeśli wynik meczu jest nieznany, wyświetl przycisk "Dodaj wynik"
             const addScoreButton = document.createElement("button");
-            addScoreButton.innerText = "Dodaj wynik";
+            addScoreButton.style.display = "block";
+            addScoreButton.innerHTML = "Dodaj wynik";
             addScoreButton.onclick = () => {
               // Funkcja do dodawania wyniku meczu
               function addScore(match) {
-                const score1 = prompt("Wynik drużyny 1:");
-                const score2 = prompt("Wynik drużyny 2:");
+                const score1 = parseInt(
+                  prompt(`Wynik drużyny ${team1}:`, "0")
+                );
+                const score2 = parseInt(
+                  prompt(`Wynik drużyny ${team2}:`, "0")
+                );
 
-                // Sprawdzenie, czy podano poprawne dane
-                if (score1 && score2) {
-                  // Aktualizacja danych meczu
-                  match.score1 = parseInt(score1);
-                  match.score2 = parseInt(score2);
+              // Sprawdzenie, czy podano poprawne dane
+              if (!isNaN(score1) && !isNaN(score2)) {
+                // Dodanie wyniku do meczu
+                match.score1 = score1;
+                match.score2 = score2;
 
-                  // Zapisanie aktualizowanych danych w pamięci przeglądarki
-                  localStorage.setItem("matches", JSON.stringify(matches));
-
-                  // Odświeżenie listy meczów i statystyk
-                  refreshMatchesAndStats();
-                }
+                // Odświeżenie listy meczów i statystyk
+                refreshMatchesAndStats();
               }
-
-              // Wywołanie funkcji do dodawania wyniku meczu
-              addScore(match);
-            };
-            matchElement.appendChild(addScoreButton);
-          } else {
-            // Jeśli wynik meczu jest znany, wyświetl go
-            const { score1, score2 } = match;
-            matchElement.innerHTML = `${team1} ${score1} : ${score2} ${team2}`;
+            }
+            addScore(match);
           }
-
-          // Dodanie elementu z meczem do listy
-          document.getElementById("matches").appendChild(matchElement);
+          matchElement.appendChild(addScoreButton);
+        } else {
+          // Jeśli wynik meczu jest znany, wyświetl go
+          matchElement.innerHTML = `${team1} ${score1} - ${score2} ${team2}`;
         }
+        document.getElementById("matches").appendChild(matchElement);
+      }
 
-        // Wyczyszczenie tabeli z statystykami
-        document.getElementById("stats").innerHTML = "";
+      // Funkcja do odświeżania statystyk drużyn
+      function refreshStats() {
+        // Wyczyszczenie tabeli statystyk
+        document.getElementById("stats").innerHTML = `
+          <tr>
+            <th>Drużyna</th>
+            <th>RM</th>
+            <th>W</th>
+            <th>R</th>
+            <th>P</th>
+            <th>Pkt</th>
+          </tr>
+        `;
 
-        // Stworzenie słownika zawierającego statystyki drużyn
+        // Tablica z statystykami drużyn
         const stats = {};
+
+        // Wypełnienie tabeli statystyk
         for (const match of matches) {
           const { team1, team2, score1, score2 } = match;
           if (!stats[team1]) {
@@ -107,44 +120,35 @@
             }
           }
         }
-
-        // Wyświetlenie statystyk drużyn w tabeli
-        for (const team of Object.values(stats)) {
-          const { team: teamName, played, won, drawn, lost, points } = team;
-          const statsRow = document.createElement("tr");
-          statsRow.innerHTML = `
-            <td>${teamName}</td>
+        // Wypełnienie tabeli statystyk danymi
+        for (const stat of Object.values(stats)) {
+          const { team, played, won, drawn, lost, points } = stat;
+          const statRow = document.createElement("tr");
+          statRow.innerHTML = `
+            <td>${team}</td>
             <td>${played}</td>
             <td>${won}</td>
             <td>${drawn}</td>
             <td>${lost}</td>
             <td>${points}</td>
           `;
-          document.getElementById("stats").appendChild(statsRow);
+          document.getElementById("stats").appendChild(statRow);
         }
       }
 
-      // Odświeżenie listy meczów i statystyk po załadowaniu strony
-      refreshMatchesAndStats();
-
-      // Funkcja do dodawania nowych meczów do listy
+      // Funkcja do dodawania meczu
       function addMatch() {
         const team1 = prompt("Nazwa drużyny 1:", "");
         const team2 = prompt("Nazwa drużyny 2:", "");
 
-
-        // Sprawdzenie, czy podano poprawne dane
+        // Sprawdzenie, czy podano nazwy drużyn
         if (team1 && team2) {
-          // Pobranie meczów z pamięci przeglądarki
-          const matches = JSON.parse(localStorage.getItem("matches")) || [];
-
-          // Dodanie nowego meczu do listy
-          matches.push({ team1, team });
-          // Zapisanie aktualizowanej listy meczów w pamięci przeglądarki
-          localStorage.setItem("matches", JSON.stringify(matches));
+          // Dodanie meczu do tablicy meczów
+          matches.push({ team1, team2 });
 
           // Odświeżenie listy meczów i statystyk
           refreshMatchesAndStats();
+          refreshStats();
         }
       }
 
@@ -153,4 +157,3 @@
     </script>
   </body>
 </html>
-
