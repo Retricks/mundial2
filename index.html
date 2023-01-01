@@ -111,19 +111,22 @@
           }
         }
 
-        // Funkcja do dodawania meczu
-        function addMatch() {
-          const team1 = prompt("Nazwa drużyny 1:", "");
-          const team2 = prompt(" Nazwa drużyny 2:", "");
+// Funkcja do dodawania meczu
+function addMatch() {
+  const team1 = prompt("Nazwa drużyny 1:", "");
+  const team2 = prompt("Nazwa drużyny 2:", "");
 
-          // Sprawdzenie, czy podano nazwy drużyn
-          if (team1 && team2          ) {
-            // Dodanie nowego meczu do listy
-            matches.push({ team1, team2 });
-            // Odświeżenie listy meczów i statystyk
-            refreshMatchesAndStats();
-          }
-        }
+  // Sprawdzenie, czy podano nazwy drużyn
+  if (team1 && team2) {
+    // Dodanie nowego meczu do listy
+    matches.push({ team1, team2 });
+    // Odświeżenie listy meczów i statystyk
+    refreshMatchesAndStats();
+  }
+  // Ukrycie przycisku "Dodaj mecz"
+  document.getElementById("addMatchButton").style.display = "none";
+}
+
 
         // Aktualizacja listy meczów i statystyk po załadowaniu strony
         refreshMatchesAndStats();
