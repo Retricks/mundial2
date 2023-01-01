@@ -118,6 +118,15 @@ refreshMatchesAndStats();
           </td>
         </tr>
       `;
+matchesTable.innerHTML += `
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td><button onclick="showScoreInput()">Dodaj mecz</button></td>
+  </tr>
+`;
     }
     // Przejście po wszystkich drużynach i dodanie ich statystyk do tabeli
     const teams = new Set();
