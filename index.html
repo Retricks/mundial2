@@ -1,150 +1,125 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Mistrzostwa świata</title>
-</head>
-<body>
-  <h1>Mistrzostwa świata</h1>
-  <table id="results">
-    <tr>
-      <th>Grupa</th>
-      <th>Drużyna</th>
-      <th>Mecze</th>
-      <th>Zwycięstwa</th>
-      <th>Porażki</th>
-      <th>Remisy</th>
-      <th>Punkty</th>
-    </tr>
-  </table>
-  <button id="reset-button">Resetuj wyniki</button>
-  <script>
-    // Pobierz listę meczów z localStorage
-    let matches = JSON.parse(localStorage.getItem('matches')) || [];
+  <head>
+    <title>Mistrzostwa Świata</title>
+  </head>
+  <body>
+    <h1>Mistrzostwa Świata</h1>
+    <h2>Mecze</h2>
+    <ul id="matches">
+      <!-- Tutaj zostaną wyświetlone mecze -->
+    </ul>
+    <h2>Statystyki drużyn</h2>
+    <table id="stats">
+      <tr>
+        <th>Drużyna</th>
+        <th>Mecze</th>
+        <th>Zwycięstwa</th>
+        <th>Remisy</th>
+        <th>Porażki</th>
+        <th>Punkty</th>
+      </tr>
+      <!-- Tutaj zostaną wyświetlone statystyki -->
+    </table>
+    <script>
+      // Funkcja do odświeżenia listy meczów i statystyk
+      function refreshMatchesAndStats() {
+        // Pobranie meczów z pamięci przeglądarki
+        const matches = JSON.parse(localStorage.getItem("matches")) || [];
 
-    // Funkcja aktualizująca tabelę wyników
-    function updateResultsTable() {
-      // Pobierz referencję do tabeli
-      let table = document.getElementById('results');
+        // Wyczyszczenie listy meczów
+        document.getElementById("matches").innerHTML = "";
 
-      // Usunąć wszystkie dotychczasowe wiersze z tabeli
-      while (table.rows.length > 1) {
-        table.deleteRow(-1);
+        // Dodanie meczów do listy
+        for (const match of matches) {
+          const { team1, team2, score1, score2 } = match;
+          const matchElement = document.createElement("li");
+          matchElement.innerHTML = `${team1} ${score1} : ${score2} ${team2}`;
+
+          // Dodanie przycisku do edycji wyniku
+          const editButton = document.createElement("button");
+          editButton.innerText = "Edytuj";
+          editButton.onclick = () => {
+            // Funkcja do edycji wyniku meczu
+            function editMatch(match) {
+              const team1 = prompt("Nazwa drużyny 1:", match.team1);
+              const team2 = prompt("Nazwa drużyny 2:", match.team2);
+              const score1 = prompt("Wynik drużyny 1:", match.score1);
+              const score2 = prompt("Wynik drużyny 2:", match.score2);
+              // Sprawdzenie, czy podano poprawne dane
+              if (team1 && team2 && score1 && score2) {
+                // Aktualizacja danych meczu
+                match.team1 = team1;
+                match.team2 = team2;
+                match.score1 = parseInt(score1);
+                match.score2 = parseInt(score2);
+
+                // Zapisanie aktualizowanych danych w pamięci przeglądarki
+                localStorage.setItem("matches", JSON.stringify(matches));
+
+                // Odświeżenie listy meczów i statystyk
+                refreshMatchesAndStats();
+              }
+            }
+
+            // Wywołanie funkcji do edycji wyniku meczu
+            editMatch(match);
+          };
+          matchElement.appendChild(editButton);
+
+          // Dodanie elementu z meczem do listy
+          document.getElementById("matches").appendChild(matchElement);
+        }
+
+        // Wyczyszczenie tabeli z statystykami
+        document.getElementById("stats").innerHTML = "";
+
+        // Stworzenie słownika zawierającego statystyki drużyn
+        const stats = {};
+        for (const match of matches) {
+          const { team1, team2, score1, score2 } = match;
+          if (!stats[team1]) {
+            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+          }
+          if (!stats[team2]) {
+            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+          }
+          stats[team1].played += 1;
+          stats[team2].played += 1;
+          if (score1 > score2) {
+            stats[team1].won += 1;
+            stats[team2].lost += 1;
+            stats[team1].points += 3;
+          } else if (score1 < score2) {
+            stats[team1].lost += 1;
+            stats[team2].won += 1;
+            stats[team2].points += 3;
+          } else {
+            stats[team1].drawn += 1;
+            stats[team2].drawn += 1;
+            stats[team1].points += 1;
+            stats[team2].points += 1;
+          }
+        }
+
+        // Wyświetlenie statystyk drużyn w tabeli
+        for (const team of Object.values(stats)) {
+          const { team: teamName, played, won, drawn, lost, points } = team;
+          const statsRow = document.createElement("tr");
+          statsRow.innerHTML = `
+            <td>${teamName}</td>
+            <td>${played}</td>
+            <td>${won}</td>
+            <td>${drawn}</td>
+            <td>${lost}</td>
+            <td>${points}</td>
+          `;
+          document.getElementById("stats").appendChild(statsRow);
+        }
       }
 
-      // Przygotuj słownik z wynikami drużyn
-      let teamResults = {};
-
-      // Dla każdego meczu:
-      for (let i = 0; i < matches.length; i++) {
-        let match = matches[i];
-        let homeTeam = match.homeTeam;
-        let awayTeam = match.awayTeam;
-        let homeGoals = parseInt(match.homeGoals);
-        let awayGoals = parseInt(match.awayGoals);
-
-        // Jeśli drużyna nie jest jeszcze w słowniku, to dodaj ją
-        if (!teamResults[homeTeam]) {
-          teamResults[homeTeam] = {
-            team: homeTeam,
-            matches: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-            points: 0
-          };
-        }
-        if (!teamResults[awayTeam]) {
-          teamResults[awayTeam] = {
-            team: awayTeam,
-            matches: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-            points: 0
-          };
-        }
-
-        // Zwiększ liczbę rozegranych meczów dla obu drużyn
-        teamResults[homeTeam].matches++;
-        teamResults[awayTeam].matches++;
-
-        // Jeśli mecz zakończył się remisem:
-        if (homeGoals === awayGoals) {
-          // Zwiększ liczbę remis
-        teamResults[homeTeam].draws++;
-        teamResults[awayTeam].draws++;
-        teamResults[homeTeam].points++;
-        teamResults[awayTeam].points++;
-      } else {
-        // W przeciwnym razie zwiększ liczbę zwycięstw lub porażek w zależności od wyniku
-        let winner = homeGoals > awayGoals ? homeTeam : awayTeam;
-        let loser = winner === homeTeam ? awayTeam : homeTeam;
-        teamResults[winner].wins++;
-        teamResults[loser].losses++;
-        teamResults[winner].points += 3;
-      }
-    }
-
-    // Posortuj słownik według punktów
-    let sortedTeams = Object.values(teamResults).sort((a, b) => b.points - a.points);
-
-    // Dla każdej drużyny:
-    for (let i = 0; i < sortedTeams.length; i++) {
-      let teamResult = sortedTeams[i];
-
-      // Dodaj wiersz do tabeli
-      let row = table.insertRow(-1);
-      row.insertCell(-1).innerHTML = teamResult.group;
-      row.insertCell(-1).innerHTML = teamResult.team;
-      row.insertCell(-1).innerHTML = teamResult.matches;
-      row.insertCell(-1).innerHTML = teamResult.wins;
-      row.insertCell(-1).innerHTML = teamResult.losses;
-      row.insertCell(-1).innerHTML = teamResult.draws;
-      row.insertCell(-1).innerHTML = teamResult.points;
-    }
-  }
-
-  // Funkcja dodająca nowy mecz do listy meczów
-  function addMatch(homeTeam, awayTeam, homeGoals, awayGoals) {
-    matches.push({
-      homeTeam: homeTeam,
-      awayTeam: awayTeam,
-      homeGoals: homeGoals,
-      awayGoals: awayGoals
-    });
-    updateResultsTable();
-  }
-
-  // Funkcja resetująca wyniki meczów
-  function resetMatches() {
-    matches = [];
-    updateResultsTable();
-  }
-
-  // Funkcja zapisująca listę meczów do localStorage
-  function saveMatches() {
-    localStorage.setItem('matches', JSON.stringify(matches));
-  }
-
-  // Aktualizuj tabelę po załadowaniu strony
-  updateResultsTable();
-
-  // Dodaj obsługę kliknięcia przycisku resetującego wyniki
-  let resetButton = document.getElementById('reset-button');
-  resetButton.addEventListener('click', function() {
-    resetMatches();
-    saveMatches();
-  });
-
-  // Dodaj kilka przykładowych meczów
-  addMatch
-('Polska', 'Niemcy', 2, 1);
-  addMatch('Brazylia', 'Argentyna', 0, 0);
-  addMatch('Hiszpania', 'Francja', 1, 2);
-
-  // Zapisz listę meczów do localStorage
-  saveMatches();
-</script>
-</body>
+      // Odświeżenie listy meczów i statystyk po załadowaniu strony
+      refreshMatchesAndStats();
+    </script>
+  </body>
 </html>
