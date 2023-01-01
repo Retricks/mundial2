@@ -82,10 +82,11 @@
         for (const match of matches) {
           const { team1, team2, score1, score2 } = match;
           if (!stats[team1]) {
-            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0, ...stats[team1] };
           }
           if (!stats[team2]) {
-            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
+            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0, ...stats[team2] };
+
           }
           // Jeśli wynik meczu jest znany, dodaj do statystyk
           if (score1 !== undefined) {
