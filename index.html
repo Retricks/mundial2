@@ -46,28 +46,44 @@
       // Lista meczów
       const matches = [];
 
-      // Funkcja do odświeżania listy meczów i statystyk
-      function refreshMatchesAndStats() {
-        // Wyczyszczenie listy meczów
-        document.getElementById("matches").innerHTML = "";
+  // Funkcja do odświeżania listy meczów i statystyk
+  function refreshMatchesAndStats() {
+    // Wyczyszczenie listy meczów i statystyk
+    document.getElementById("matches").innerHTML = "";
+    document.getElementById("stats").innerHTML = "";
 
-        // Wypełnienie listy meczów danymi
-        for (const match of matches) {
-          const { team1, team2, score1, score2 } = match;
-          const matchRow = document.createElement("tr");
-          matchRow.innerHTML = `
-            <td>${team1}</td>
-            <td>${score1 !== undefined ? score1 : ""}</td>
-            <td>${team2}</td>
-            <td>${score2 !== undefined ? score2 : ""}</td>
-            <td>
-              <button onclick="showScoreInput(${matches.indexOf(match)})">
-                ${score1 !== undefined ? "Edytuj" : "Dodaj"}
-              </button>
-            </td>
-          `;
-          document.getElementById("matches").appendChild(matchRow);
-        }
+    // Wstawienie nagłówków tabeli meczów
+    document.getElementById("matches").innerHTML = `
+      <tr>
+        <th>Drużyna 1</th>
+        <th>Wynik</th>
+        <th>Drużyna 2</th>
+        <th>Wynik</th>
+        <th>Akcja</th>
+      </tr>
+    `;
+
+    // Iteracja po meczach
+    for (let i = 0; i < matches.length; i++) {
+      // Pobranie danych meczu
+      const { team1, team2, score1, score2 } = matches[i];
+      // Wstawienie danych meczu do tabeli
+      document.getElementById("matches").innerHTML += `
+        <tr>
+          <td>${team1}</td>
+          <td>${score1 !== undefined ? score1 : "---"}</td>
+          <td>${team2}</td>
+          <td>${score2 !== undefined ? score2 : "---"}</td>
+          <td>
+            ${score1 === undefined
+              ? `<button onclick="showScoreInput(${i})">Dodaj mecz</button>`
+              : ""}
+          </td>
+        </tr>
+      `;
+    }
+  }
+
 
         // Obiekt zawierający statystyki drużyn
         const stats = {};
