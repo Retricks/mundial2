@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mistrzostwa świata</title>
+</head>
+<body>
+  <h1>Mistrzostwa świata</h1>
+  <table id="results">
+    <tr>
+      <th>Grupa</th>
+      <th>Drużyna</th>
+      <th>Mecze</th>
+      <th>Zwycięstwa</th>
+      <th>Porażki</th>
+      <th>Remisy</th>
+      <th>Punkty</th>
+    </tr>
+  </table>
+  <button id="reset-button">Resetuj wyniki</button>
+  <script>
+    // Pobierz listę meczów z localStorage
+    let matches = JSON.parse(localStorage.getItem('matches')) || [];
+
+    // Funkcja aktualizująca tabelę wyników
+    function updateResultsTable() {
+      // Pobierz referencję do tabeli
+      let table = document.getElementById('results');
+
+      // Usunąć wszystkie dotychczasowe wiersze z tabeli
+      while (table.rows.length > 1) {
+        table.deleteRow(-1);
+      }
+
+      // Przygotuj słownik z wynikami drużyn
+      let teamResults = {};
+
+      // Dla każdego meczu:
+      for (let i = 0; i < matches.length; i++) {
+        let match = matches[i];
+        let homeTeam = match.homeTeam;
+        let awayTeam = match.awayTeam;
+        let homeGoals = parseInt(match.homeGoals);
+        let awayGoals = parseInt(match.awayGoals);
+
+        // Jeśli drużyna nie jest jeszcze w słowniku, to dodaj ją
+        if (!teamResults[homeTeam]) {
+          teamResults[homeTeam] = {
+            team: homeTeam,
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            points: 0
+          };
+        }
+        if (!teamResults[awayTeam]) {
+          teamResults[awayTeam] = {
+            team: awayTeam,
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            points: 0
+          };
+        }
+
+        // Zwiększ liczbę rozegranych meczów dla obu drużyn
+        teamResults[homeTeam].matches++;
+        teamResults[awayTeam].matches++;
+
+        // Jeśli mecz zakończył się remisem:
+        if (homeGoals === awayGoals) {
+          // Zwiększ liczbę remis
