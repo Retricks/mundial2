@@ -134,28 +134,25 @@
 
       // Funkcja do wyświetlania pola wprowadzania wyniku meczu
       function showScoreInput(index) {
-        // Ukrycie przycisku "Dodaj mecz"
-        document.getElementById("addMatchButton").style.display = "none";
         // Pobranie wiersza z danymi meczu
         const matchRow = document.getElementById("matches").children[index + 1];
         // Pobranie danych meczu
         const { team1, team2, score1, score2 } = matches[index];
-        // Wstawienie pola wprowadzania wyniku meczu
-        matchRow.innerHTML = `
-          <td>${team1}</td>
+        // Wstawienie pola wprowadzania wyniku meczu i przycisków "Zatwierdź" i "Anuluj"
+        matchRow.innerHTML += `
           <td>
             <input type="number" value="${score1 !== undefined ? score1 : ""}" id="score1Input" />
           </td>
-          <td>${team2}</td>
           <td>
             <input type="number" value="${score2 !== undefined ? score2 : ""}" id="score2Input" />
           </td>
           <td>
             <button onclick="addScore(${index})">Zatwierdź</button>
             <button onclick="refreshMatchesAndStats()">Anuluj</button>
-        </td>
-      `;
-    }
+          </td>
+        `;
+      }
+
       // Funkcja do dodawania wyniku meczu
       function addScore(index) {
         // Pobranie wartości z pól wprowadzania wyniku meczu
