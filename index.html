@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>Mistrzostwa Świata</title>
@@ -9,6 +8,7 @@
     <ul id="matches">
       <!-- Tutaj zostaną wyświetlone mecze -->
     </ul>
+    <button id="addMatchButton">Dodaj mecz</button>
     <h2>Statystyki drużyn</h2>
     <table id="stats">
       <tr>
@@ -82,11 +82,10 @@
         for (const match of matches) {
           const { team1, team2, score1, score2 } = match;
           if (!stats[team1]) {
-            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0, ...stats[team1] };
+            stats[team1] = { team: team1, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
           }
           if (!stats[team2]) {
-            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0, ...stats[team2] };
-
+            stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
           }
           // Jeśli wynik meczu jest znany, dodaj do statystyk
           if (score1 !== undefined) {
@@ -127,6 +126,30 @@
 
       // Odświeżenie listy meczów i statystyk po załadowaniu strony
       refreshMatchesAndStats();
+
+      // Funkcja do dodawania nowych meczów do listy
+      function addMatch() {
+        const team1 = prompt("Nazwa drużyny 1:");
+        const team2 = prompt("Nazwa drużyny 2:");
+
+        // Sprawdzenie, czy podano poprawne dane
+        if (team1 && team2) {
+          // Pobranie meczów z pamięci przeglądarki
+          const matches = JSON.parse(localStorage.getItem("matches")) || [];
+
+          // Dodanie nowego meczu do listy
+          matches.push({ team1, team });
+          // Zapisanie aktualizowanej listy meczów w pamięci przeglądarki
+          localStorage.setItem("matches", JSON.stringify(matches));
+
+          // Odświeżenie listy meczów i statystyk
+          refreshMatchesAndStats();
+        }
+      }
+
+      // Dodanie obsługi zdarzenia kliknięcia na przycisk "Dodaj mecz"
+      document.getElementById("addMatchButton").onclick = addMatch;
     </script>
   </body>
 </html>
+
