@@ -13,11 +13,11 @@
     <table id="stats">
       <tr>
         <th>Drużyna</th>
-        <th>Mecze</th>
-        <th>Zwycięstwa</th>
-        <th>Remisy</th>
-        <th>Porażki</th>
-        <th>Punkty</th>
+        <th>RM</th>
+        <th>W</th>
+        <th>R</th>
+        <th>P</th>
+        <th>Pkt</th>
       </tr>
       <!-- Tutaj zostaną wyświetlone statystyki -->
     </table>
@@ -32,40 +32,43 @@
 
         // Dodanie meczów do listy
         for (const match of matches) {
-          const { team1, team2, score1, score2 } = match;
+          const { team1, team2 } = match;
           const matchElement = document.createElement("li");
-          matchElement.innerHTML = `${team1} ${score1} : ${score2} ${team2}`;
 
-          // Dodanie przycisku do edycji wyniku
-          const editButton = document.createElement("button");
-          editButton.innerText = "Edytuj";
-          editButton.onclick = () => {
-            // Funkcja do edycji wyniku meczu
-            function editMatch(match) {
-              const team1 = prompt("Nazwa drużyny 1:", match.team1);
-              const team2 = prompt("Nazwa drużyny 2:", match.team2);
-              const score1 = prompt("Wynik drużyny 1:", match.score1);
-              const score2 = prompt("Wynik drużyny 2:", match.score2);
-              // Sprawdzenie, czy podano poprawne dane
-              if (team1 && team2 && score1 && score2) {
-                // Aktualizacja danych meczu
-                match.team1 = team1;
-                match.team2 = team2;
-                match.score1 = parseInt(score1);
-                match.score2 = parseInt(score2);
+          // Jeśli wynik meczu jest nieznany, dodaj przycisk "Dodaj wynik"
+          if (match.score1 === undefined) {
+            matchElement.innerHTML = `${team1} vs ${team2}`;
+            const addScoreButton = document.createElement("button");
+            addScoreButton.innerText = "Dodaj wynik";
+            addScoreButton.onclick = () => {
+              // Funkcja do dodawania wyniku meczu
+              function addScore(match) {
+                const score1 = prompt("Wynik drużyny 1:");
+                const score2 = prompt("Wynik drużyny 2:");
 
-                // Zapisanie aktualizowanych danych w pamięci przeglądarki
-                localStorage.setItem("matches", JSON.stringify(matches));
+                // Sprawdzenie, czy podano poprawne dane
+                if (score1 && score2) {
+                  // Aktualizacja danych meczu
+                  match.score1 = parseInt(score1);
+                  match.score2 = parseInt(score2);
 
-                // Odświeżenie listy meczów i statystyk
-                refreshMatchesAndStats();
+                  // Zapisanie aktualizowanych danych w pamięci przeglądarki
+                  localStorage.setItem("matches", JSON.stringify(matches));
+
+                  // Odświeżenie listy meczów i statystyk
+                  refreshMatchesAndStats();
+                }
               }
-            }
 
-            // Wywołanie funkcji do edycji wyniku meczu
-            editMatch(match);
-          };
-          matchElement.appendChild(editButton);
+              // Wywołanie funkcji do dodawania wyniku meczu
+              addScore(match);
+            };
+            matchElement.appendChild(addScoreButton);
+          } else {
+            // Jeśli wynik meczu jest znany, wyświetl go
+            const { score1, score2 } = match;
+            matchElement.innerHTML = `${team1} ${score1} : ${score2} ${team2}`;
+          }
 
           // Dodanie elementu z meczem do listy
           document.getElementById("matches").appendChild(matchElement);
@@ -84,21 +87,24 @@
           if (!stats[team2]) {
             stats[team2] = { team: team2, played: 0, won: 0, drawn: 0, lost: 0, points: 0 };
           }
-          stats[team1].played += 1;
-          stats[team2].played += 1;
-          if (score1 > score2) {
-            stats[team1].won += 1;
-            stats[team2].lost += 1;
-            stats[team1].points += 3;
-          } else if (score1 < score2) {
-            stats[team1].lost += 1;
-            stats[team2].won += 1;
-            stats[team2].points += 3;
-          } else {
-            stats[team1].drawn += 1;
-            stats[team2].drawn += 1;
-            stats[team1].points += 1;
-            stats[team2].points += 1;
+          // Jeśli wynik meczu jest znany, dodaj do statystyk
+          if (score1 !== undefined) {
+            stats[team1].played += 1;
+            stats[team2].played += 1;
+            if (score1 > score2) {
+              stats[team1].won += 1;
+              stats[team2].lost += 1;
+              stats[team1].points += 3;
+            } else if (score1 < score2) {
+              stats[team1].lost += 1;
+              stats[team2].won += 1;
+              stats[team2].points += 3;
+            } else {
+              stats[team1].drawn += 1;
+              stats[team2].drawn += 1;
+              stats[team1].points += 1;
+              stats[team2].points += 1;
+            }
           }
         }
 
