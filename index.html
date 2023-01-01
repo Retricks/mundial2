@@ -68,6 +68,37 @@ function refreshMatchesAndStats() {
       }
     }
   }
+  // Wyczyszczenie tabeli statystyk
+  document.getElementById("stats").innerHTML = `
+    <tr>
+      <th>Drużyna</th>
+      <th>RM</th>
+      <th>W</th>
+      <th>R</th>
+      <th>P</th>
+      <th>Pkt</th>
+    </tr>
+  `;
+
+  // Wypełnienie tabeli statystyk danymi
+  for (const team in stats) {
+    const { played, won, drawn, lost, points } = stats[team];
+    const statsRow = document.createElement("tr");
+    statsRow.innerHTML = `
+      <td>${team}</td>
+      <td>${played}</td>
+      <td>${won}</td>
+      <td>${drawn}</td>
+      <td>${lost}</td>
+      <td>${points}</td>
+    `;
+    document.getElementById("stats").appendChild(statsRow);
+  }
+
+  // Pokazanie przycisku "Dodaj mecz"
+  document.getElementById("addMatchButton").style.display = "block";
+}
+
 
 
       // Funkcja do odświeżania statystyk drużyn
